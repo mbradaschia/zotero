@@ -1,6 +1,14 @@
 "use strict";
 
 describe("Zotero.ReadingStatus", function () {
+	// createDataObject() doesn't accept an `extra` param, so set it explicitly.
+	async function createItemWithExtra(extra) {
+		let item = await createDataObject('item');
+		item.setField('extra', extra);
+		await item.saveTx();
+		return item;
+	}
+
 	describe("#get()", function () {
 		it("should return '' for an item with no extra field", async function () {
 			let item = await createDataObject('item');
@@ -8,17 +16,17 @@ describe("Zotero.ReadingStatus", function () {
 		});
 
 		it("should return '' for an item with unrelated extra content", async function () {
-			let item = await createDataObject('item', { extra: 'DOI: 10.1000/x\nPMID: 123' });
+			let item = await createItemWithExtra('DOI: 10.1000/x\nPMID: 123');
 			assert.strictEqual(Zotero.ReadingStatus.get(item), '');
 		});
 
 		it("should return canonical value when set", async function () {
-			let item = await createDataObject('item', { extra: 'Reading-Status: In Progress' });
+			let item = await createItemWithExtra('Reading-Status: In Progress');
 			assert.strictEqual(Zotero.ReadingStatus.get(item), 'In Progress');
 		});
 
 		it("should return '' for unknown values", async function () {
-			let item = await createDataObject('item', { extra: 'Reading-Status: Bogus' });
+			let item = await createItemWithExtra('Reading-Status: Bogus');
 			assert.strictEqual(Zotero.ReadingStatus.get(item), '');
 		});
 	});
@@ -41,9 +49,7 @@ describe("Zotero.ReadingStatus", function () {
 		});
 
 		it("should preserve other extra-field content", async function () {
-			let item = await createDataObject('item', {
-				extra: 'DOI: 10.1000/x\nCitation Key: smith2020'
-			});
+			let item = await createItemWithExtra('DOI: 10.1000/x\nCitation Key: smith2020');
 			await Zotero.ReadingStatus.set(item, 'Unread');
 			let extra = item.getField('extra');
 			assert.include(extra, 'DOI: 10.1000/x');
@@ -52,9 +58,7 @@ describe("Zotero.ReadingStatus", function () {
 		});
 
 		it("should overwrite an existing Reading-Status without duplication", async function () {
-			let item = await createDataObject('item', {
-				extra: 'Reading-Status: Unread\nDOI: 10.1000/y'
-			});
+			let item = await createItemWithExtra('Reading-Status: Unread\nDOI: 10.1000/y');
 			await Zotero.ReadingStatus.set(item, 'Done');
 			let extra = item.getField('extra');
 			assert.equal((extra.match(/Reading-Status:/g) || []).length, 1);
@@ -63,9 +67,7 @@ describe("Zotero.ReadingStatus", function () {
 		});
 
 		it("should leave extractExtraFields parsing other keys intact", async function () {
-			let item = await createDataObject('item', {
-				extra: 'Citation Key: smith2020\nDOI: 10.1000/z'
-			});
+			let item = await createItemWithExtra('Citation Key: smith2020\nDOI: 10.1000/z');
 			await Zotero.ReadingStatus.set(item, 'In Progress');
 			let { fields } = Zotero.Utilities.Internal.extractExtraFields(
 				item.getField('extra')
