@@ -98,6 +98,7 @@ const xpcomFilesLocal = [
 	'data/searchConditions',
 	'data/searches',
 	'data/tags',
+	'readingStatus',
 	'db',
 	'dictionaries',
 	'duplicates',

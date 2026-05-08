@@ -351,6 +351,16 @@ const COLUMNS = [
 		zoteroPersist: ["width", "hidden", "sortDirection"]
 	},
 	{
+		dataKey: "readingStatus",
+		disabledIn: ["feeds", "feed"],
+		showInColumnPicker: true,
+		columnPickerSubMenu: true,
+		label: "items-column-reading-status",
+		minWidth: 90,
+		flex: 1,
+		zoteroPersist: ["width", "hidden", "sortDirection"]
+	},
+	{
 		dataKey: "hasAttachment",
 		defaultIn: ["*"],
 		disabledIn: ["feeds", "feed"],

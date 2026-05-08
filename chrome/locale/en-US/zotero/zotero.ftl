@@ -900,3 +900,16 @@ plugins-blocked-plugin =
     .message = This plugin has been disabled by { -app-name }.
 
 data-dir-unsupported-storage = This can happen if the { -app-name } data directory is in a cloud storage folder (OneDrive, Dropbox, etc.) or on a network share.
+
+items-column-reading-status = Reading Status
+reading-status-none = —
+reading-status-unread = Unread
+reading-status-in-progress = In Progress
+reading-status-done = Done
+reading-status-abandoned = Abandoned
+
+view-toggle-kanban =
+    .tooltiptext = Switch to Kanban view
+view-toggle-table =
+    .tooltiptext = Switch to Table view
+kanban-column-unset = No status

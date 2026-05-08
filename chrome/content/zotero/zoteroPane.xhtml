@@ -1353,6 +1353,13 @@
 												</toolbarbutton>
 												
 												<spacer flex="1"/>
+												<toolbarbutton
+													id="zotero-tb-view-toggle"
+													class="zotero-tb-button"
+													tabindex="-1"
+													data-l10n-id="view-toggle-kanban"
+													oncommand="ZoteroPane.toggleItemsViewType()"
+												/>
 												<image id="zotero-tb-search-spinner" class="zotero-spinner-16"/>
 												<quick-search-textbox id="zotero-tb-search" timeout="250"
 														onkeydown="ZoteroPane_Local.handleSearchKeypress(this, event)"
@@ -1372,6 +1379,7 @@
 										</toolbar>
 										<hbox id="zotero-items-pane" class="virtualized-table-container" flex="1" clickthrough="never">
 											<html:div id="zotero-items-tree"></html:div>
+											<html:div id="zotero-kanban-pane" hidden="hidden"></html:div>
 										</hbox>
 									</vbox>
 									

@@ -2302,7 +2302,8 @@ var ItemTree = class ItemTree extends LibraryTree {
 		row.addedBy = row.isItem && treeRow.getAddedBy();
 		row.lastModifiedBy = row.isItem && treeRow.getLastModifiedBy();
 		row.title = treeRow.getDisplayTitle();
-		
+		row.readingStatus = row.isItem ? Zotero.ReadingStatus.get(treeRow.ref) : "";
+
 		const columns = this.getColumns();
 		for (let col of columns) {
 			let key = col.dataKey;

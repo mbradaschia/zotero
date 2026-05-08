@@ -550,6 +550,17 @@ var ZoteroPane = new function () {
 		await ZoteroPane.initCollectionsTree();
 		await ZoteroPane.initItemsTree();
 		ZoteroPane.initCollectionTreeSearch();
+
+		// Restore saved items-view type (table or kanban)
+		try {
+			let savedType = Zotero.Prefs.get('itemsViewType') || 'table';
+			if (savedType === 'kanban') {
+				await ZoteroPane._applyItemsViewType('kanban');
+			}
+		}
+		catch (e) {
+			Zotero.logError(e);
+		}
 		
 		// Add a default progress window
 		ZoteroPane.progressWindow = new Zotero.ProgressWindow({ window });
@@ -1628,6 +1639,44 @@ var ZoteroPane = new function () {
 			Zotero.debug(e, 1);
 		}
 	}
+
+	this.toggleItemsViewType = async function () {
+		let current = Zotero.Prefs.get('itemsViewType') || 'table';
+		let next = current === 'table' ? 'kanban' : 'table';
+		Zotero.Prefs.set('itemsViewType', next);
+		await this._applyItemsViewType(next);
+	};
+
+	this._applyItemsViewType = async function (type) {
+		let treeEl = document.getElementById('zotero-items-tree');
+		let kanbanEl = document.getElementById('zotero-kanban-pane');
+		let toggleBtn = document.getElementById('zotero-tb-view-toggle');
+		if (!treeEl || !kanbanEl) return;
+
+		if (type === 'kanban') {
+			if (!this._kanbanView) {
+				const KanbanView = require('zotero/kanbanView');
+				this._kanbanView = await KanbanView.init(kanbanEl, {
+					getItemsView: () => ZoteroPane.itemsView,
+				});
+			}
+			treeEl.hidden = true;
+			kanbanEl.hidden = false;
+			if (toggleBtn) {
+				toggleBtn.setAttribute('data-l10n-id', 'view-toggle-table');
+			}
+			if (this._kanbanView.refresh) {
+				this._kanbanView.refresh();
+			}
+		}
+		else {
+			treeEl.hidden = false;
+			kanbanEl.hidden = true;
+			if (toggleBtn) {
+				toggleBtn.setAttribute('data-l10n-id', 'view-toggle-kanban');
+			}
+		}
+	};
 
 	this.initCollectionsTree = async function () {
 		try {
