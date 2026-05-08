@@ -87,6 +87,7 @@ Zotero.ReadingStatus = {
 		try {
 			Zotero.ItemPaneManager.registerInfoRow({
 				rowID: 'reading-status',
+				pluginID: 'zotero@zotero.org',
 				label: { l10nID: 'items-column-reading-status' },
 				position: 'end',
 				editable: true,

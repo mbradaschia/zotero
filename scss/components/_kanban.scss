@@ -9,6 +9,10 @@
 	}
 }
 
+#zotero-tb-view-toggle {
+	@include svgicon-menu('view', 'universal', '16');
+}
+
 .kanban-board {
 	display: flex;
 	flex-direction: row;
