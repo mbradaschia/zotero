@@ -3,7 +3,7 @@
 import * as ReadingStatus from './readingStatus.js';
 import { openKanbanTab } from './kanbanTab.js';
 
-const PLUGIN_ID = 'reading-status@placeholder';
+const PLUGIN_ID = 'reading-status@example.com';
 
 let state = {
 	rootURI: null,

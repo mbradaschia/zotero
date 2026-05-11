@@ -3,10 +3,9 @@
 	"name": "Reading Status & Kanban",
 	"description": "Per-item reading-progress field and Kanban board view",
 	"version": "0.1.0",
-	"author": "",
 	"applications": {
 		"zotero": {
-			"id": "reading-status@placeholder",
+			"id": "reading-status@example.com",
 			"strict_min_version": "7.0",
 			"strict_max_version": "9.0.*"
 		}

@@ -17,7 +17,7 @@ if [[ ! -d "$PROFILE_DIR" ]]; then
 	exit 1
 fi
 
-PLUGIN_ID="reading-status@placeholder"
+PLUGIN_ID="reading-status@example.com"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 mkdir -p "$PROFILE_DIR/extensions"
