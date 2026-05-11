@@ -33,6 +33,12 @@ export async function startup({ rootURI }) {
 export async function onMainWindowLoad({ window }) {
 	state.windows.add(window);
 	state.openTabs.set(window, new Set());
+	// Auto-registration of locale/<lang>/reading-status.ftl only puts strings
+	// into the global L10n service. The main window's document still needs a
+	// <link rel="localization"> entry for data-l10n-id attributes on our
+	// injected elements (menu labels, info-row label, column header) to
+	// resolve. insertFTLIfNeeded adds that link idempotently.
+	window.MozXULElement.insertFTLIfNeeded('reading-status.ftl');
 }
 
 export async function onMainWindowUnload({ window }) {
@@ -52,6 +58,18 @@ function _closeTabsInWindow(window) {
 		}
 	}
 	ids.clear();
+}
+
+function _removeFTLFromWindow(window) {
+	try {
+		let link = window.document.querySelector(
+			'link[href="reading-status.ftl"]'
+		);
+		if (link) link.remove();
+	}
+	catch (e) {
+		Zotero.logError(e);
+	}
 }
 
 export async function shutdown() {
@@ -82,9 +100,10 @@ export async function shutdown() {
 		}
 		state.infoRowID = null;
 	}
-	// Close every open Kanban tab we opened.
+	// Close every open Kanban tab we opened, and remove the FTL link.
 	for (let window of state.windows) {
 		_closeTabsInWindow(window);
+		_removeFTLFromWindow(window);
 	}
 	state.windows.clear();
 	_unregisterStylesheet();
