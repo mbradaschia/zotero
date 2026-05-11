@@ -11,7 +11,9 @@ rm -f "$OUT"
 
 # Zip contents from the repo root (NOT a top-level directory inside the zip,
 # which Firefox/Zotero doesn't accept for WebExtension bundles).
-zip -r -X "$OUT" \
+# -D suppresses directory entries (matches Mozilla web-ext output);
+# -X strips extended attributes; -r recurses; -9 max compression.
+zip -r -D -X -9 "$OUT" \
 	manifest.json \
 	bootstrap.js \
 	content \
