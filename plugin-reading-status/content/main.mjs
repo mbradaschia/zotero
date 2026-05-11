@@ -4,6 +4,8 @@ import * as ReadingStatus from './readingStatus.js';
 import { openKanbanTab } from './kanbanTab.js';
 
 const PLUGIN_ID = 'reading-status@example.com';
+const FTL_NAME = 'reading-status.ftl';
+const L10N_SOURCE_NAME = 'reading-status';
 
 let state = {
 	rootURI: null,
@@ -11,6 +13,7 @@ let state = {
 	columnID: null,
 	menuIDs: [],
 	stylesheetURI: null,
+	l10nSourceRegistered: false,
 	windows: new Set(),
 	// window -> Set<tabID> for Kanban tabs we've opened in that window
 	openTabs: new WeakMap(),
@@ -24,10 +27,53 @@ export async function startup({ rootURI }) {
 	// the Browser Console during development).
 	Zotero.ReadingStatus = ReadingStatus;
 
+	_registerL10nSource(rootURI);
 	_registerStylesheet(rootURI);
 	_registerInfoRow();
 	_registerColumn();
 	_registerMenus();
+}
+
+function _registerL10nSource(rootURI) {
+	// Zotero auto-registers locale/<lang>/*.ftl from the plugin XPI in theory,
+	// but in practice that can fail silently (e.g. if an earlier install was
+	// broken) and not retry on reinstall, leaving data-l10n-id attributes
+	// unresolved. Register the FTL source explicitly so we don't depend on
+	// auto-discovery.
+	try {
+		let { L10nFileSource, L10nRegistry } = ChromeUtils.importESModule(
+			'resource://gre/modules/L10nRegistry.sys.mjs'
+		);
+		let registry = L10nRegistry.getInstance();
+		if (registry.hasSource(L10N_SOURCE_NAME)) {
+			registry.removeSources([L10N_SOURCE_NAME]);
+		}
+		let source = new L10nFileSource(
+			L10N_SOURCE_NAME,
+			'app',
+			['en-US'],
+			rootURI + 'locale/{locale}/'
+		);
+		registry.registerSources([source]);
+		state.l10nSourceRegistered = true;
+	}
+	catch (e) {
+		Zotero.logError(e);
+	}
+}
+
+function _unregisterL10nSource() {
+	if (!state.l10nSourceRegistered) return;
+	try {
+		let { L10nRegistry } = ChromeUtils.importESModule(
+			'resource://gre/modules/L10nRegistry.sys.mjs'
+		);
+		L10nRegistry.getInstance().removeSources([L10N_SOURCE_NAME]);
+	}
+	catch (e) {
+		Zotero.logError(e);
+	}
+	state.l10nSourceRegistered = false;
 }
 
 export async function onMainWindowLoad({ window }) {
@@ -38,7 +84,7 @@ export async function onMainWindowLoad({ window }) {
 	// <link rel="localization"> entry for data-l10n-id attributes on our
 	// injected elements (menu labels, info-row label, column header) to
 	// resolve. insertFTLIfNeeded adds that link idempotently.
-	window.MozXULElement.insertFTLIfNeeded('reading-status.ftl');
+	window.MozXULElement.insertFTLIfNeeded(FTL_NAME);
 }
 
 export async function onMainWindowUnload({ window }) {
@@ -63,7 +109,7 @@ function _closeTabsInWindow(window) {
 function _removeFTLFromWindow(window) {
 	try {
 		let link = window.document.querySelector(
-			'link[href="reading-status.ftl"]'
+			`link[href="${FTL_NAME}"]`
 		);
 		if (link) link.remove();
 	}
@@ -107,6 +153,7 @@ export async function shutdown() {
 	}
 	state.windows.clear();
 	_unregisterStylesheet();
+	_unregisterL10nSource();
 	delete Zotero.ReadingStatus;
 }
 
